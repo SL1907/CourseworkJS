@@ -6,6 +6,7 @@ let car;
 let obstacles;
 let gameSpeed = 1;
 let gameState;
+let isMobile;
 
 const Fonts = {};
 const Buttons = {};
@@ -28,14 +29,27 @@ function preload() {
 	Fonts["PressStart"] = loadFont('./assets/fonts/PressStart.ttf');
 
 	backgroundImage = loadImage("assets/images/car_game.png");
+
+	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
+
+	if (isMobile) {
+		fill(255, 0, 0);
+		textSize(round(width * 0.04));
+		let error = "This game is not supported by your device.";
+		text(error, width / 2 - textWidth(error) / 2, height / 2);
+		return;
+	}
 	
 	frameRate(60);
 
 	gameState = GameState.START_SCREEN;
+	tint(255, 127);
+	image(backgroundImage, 40, 0, width, height);
+
 	drawGameWindow();
 	
 	initButtons();
@@ -47,7 +61,11 @@ function setup() {
 }
 
 function draw() {
-	// drawGameWindow(gameState);
+	if (isMobile) {
+		return;
+	}
+
+	drawGameWindow(gameState);
 
 	let buttons = Buttons[gameState] || [];
 	for (let button of buttons) {
@@ -124,9 +142,8 @@ function initButtons() {
 
 function drawGameWindow() {
 	if (gameState === GameState.START_SCREEN) {
-		tint(255, 127);
-		image(backgroundImage, 40, 0, width, height);
-		tint(255, 255);
+		// tint(255, 127);
+		background(220);
 
 		fill(127, 127, 127);
 		rect(0, 0, width / 4, height);
@@ -142,7 +159,7 @@ function drawGameWindow() {
 function defaultBehaviour(button, text, x, y) {
 	button.locate(x, y);
 	button.textFont = Fonts.PressStart;
-	button.textColor = "#00e100";
+	button.textColor = "#FFFF00";
 	button.strokeWeight = 0;
 
 	button.textSize = 50;
