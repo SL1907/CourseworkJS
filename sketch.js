@@ -22,17 +22,22 @@ const GameState = Object.freeze({
 	GAME_OVER: 2
 });
 
+let backgroundImage;
 function preload() {
 	Fonts["Goldman"] = loadFont('./assets/fonts/Goldman.ttf');
 	Fonts["PressStart"] = loadFont('./assets/fonts/PressStart.ttf');
+
+	backgroundImage = loadImage("assets/images/car_game.png");
 }
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
+	
 	frameRate(60);
 
 	gameState = GameState.START_SCREEN;
-
+	drawGameWindow();
+	
 	initButtons();
 	
 	obstacles = [];
@@ -42,11 +47,7 @@ function setup() {
 }
 
 function draw() {
-	background(220);
-
-	fill(127, 127, 127);
-	rect(0, 0, width / 4, height);
-	rect(width - (width / 4), 0, width / 4, height);
+	// drawGameWindow(gameState);
 
 	let buttons = Buttons[gameState] || [];
 	for (let button of buttons) {
@@ -55,7 +56,7 @@ function draw() {
 
 	switch (gameState) {
 		case GameState.START_SCREEN: {
-			fill(0, 0, 225);
+			fill(255, 100, 0);
 			textFont(Fonts.PressStart);
 			textSize(90);
 			text(GAME_NAME, (width / 2) - (textWidth(GAME_NAME) / 2), 200);
@@ -73,7 +74,7 @@ function draw() {
 			car.draw();
 			break;
 		}
-		case GameState.GAME_OVER: {
+		case GameState.GAME_OVER: {			
 			fill(225, 0, 0);
 			textFont(Fonts.PressStart);
 			textSize(90);
@@ -100,9 +101,9 @@ function initButtons() {
 	let startOptions = new Clickable();
 
 	Buttons[GameState.START_SCREEN] = [
-		addButtonBehaviour(startPlay, messages[0], (width / 2) - textWidth(messages[0]) / 2, (height / 2) - 100),
-		addButtonBehaviour(startLeaderboard, messages[1], (width / 2) - textWidth(messages[1]) / 2, (height / 2)),
-		addButtonBehaviour(startOptions, messages[2], (width / 2) - textWidth(messages[2]) / 2, (height / 2) + 100)
+		defaultBehaviour(startPlay, messages[0], (width / 2) - textWidth(messages[0]) / 2, (height / 2) - 100),
+		defaultBehaviour(startLeaderboard, messages[1], (width / 2) - textWidth(messages[1]) / 2, (height / 2)),
+		defaultBehaviour(startOptions, messages[2], (width / 2) - textWidth(messages[2]) / 2, (height / 2) + 100)
 	];
 
 	let gameOverPlay = new Clickable();
@@ -116,18 +117,34 @@ function initButtons() {
 	}
 
 	Buttons[GameState.GAME_OVER] = [
-		addButtonBehaviour(gameOverPlay, messages[3], (width / 2) - textWidth(messages[3]) / 2, (height / 2) - 50),
-		addButtonBehaviour(gameOverMenu, messages[4], (width / 2) - textWidth(messages[4]) / 2, (height / 2) + 75)
+		defaultBehaviour(gameOverPlay, messages[3], (width / 2) - textWidth(messages[3]) / 2, (height / 2) - 50),
+		defaultBehaviour(gameOverMenu, messages[4], (width / 2) - textWidth(messages[4]) / 2, (height / 2) + 75)
 	];
 }
 
-function addButtonBehaviour(button, text, x, y) {
+function drawGameWindow() {
+	if (gameState === GameState.START_SCREEN) {
+		tint(255, 127);
+		image(backgroundImage, 40, 0, width, height);
+		tint(255, 255);
+
+		fill(127, 127, 127);
+		rect(0, 0, width / 4, height);
+		rect(width - (width / 4), 0, width / 4, height);
+	} else {
+		background(220);
+		fill(127, 127, 127);
+		rect(0, 0, width / 4, height);
+		rect(width - (width / 4), 0, width / 4, height);
+	}
+}
+
+function defaultBehaviour(button, text, x, y) {
 	button.locate(x, y);
 	button.textFont = Fonts.PressStart;
 	button.textColor = "#00e100";
 	button.strokeWeight = 0;
 
-	button.color = "#dcdcdc";
 	button.textSize = 50;
 	button.text = text;
 
@@ -135,10 +152,10 @@ function addButtonBehaviour(button, text, x, y) {
 	button.height = 50;
 
 	button.onOutside = function () {
-		this.textColor = "#00e100";
+		this.textColor = "#FFFF00";
 	}
 	button.onHover = function () {
-		this.textColor = "#018a01";
+		this.textColor = "#BFBF40";
 	}
 
 	return button;
