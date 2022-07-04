@@ -158,7 +158,8 @@ function Clickable(x,y) {
 
 	this.draw = function () {
 		push();
-		fill(this.color);
+		let rgb = hexToRgb(this.color)
+		fill(rgb.r, rgb.g, rgb.b, 0);
 		stroke(this.stroke);
 		strokeWeight(this.strokeWeight);
 		rect(this.x, this.y, this.width, this.height, this.cornerRadius);
@@ -178,6 +179,15 @@ function Clickable(x,y) {
 				cl_lastClicked = this;
 		}
 		pop();
+	}
+
+	function hexToRgb(hex) {
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+		  	r: parseInt(result[1], 16),
+		  	g: parseInt(result[2], 16),
+		  	b: parseInt(result[3], 16)
+		} : null;
 	}
 
 	cl_clickables.push(this);

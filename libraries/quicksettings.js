@@ -1144,12 +1144,12 @@
         addImage: function (title, imageURL, callback) {
             var container = this._createContainer(),
                 label = createLabel("<b>" + title + "</b>", container);
-            img = createElement("img", null, "qs_image", container);
-            img.src = imageURL;
+            backgroundImage = createElement("img", null, "qs_image", container);
+            backgroundImage.src = imageURL;
 
             this._controls[title] = {
                 container: container,
-                control: img,
+                control: backgroundImage,
                 label: label,
                 getValue: function () {
                     return this.control.src;
@@ -1157,8 +1157,8 @@
                 setValue: function (url) {
                     this.control.src = url;
                     if (callback) {
-                        img.addEventListener("load", function _onLoad() {
-                            img.removeEventListener("load", _onLoad)
+                        backgroundImage.addEventListener("load", function _onLoad() {
+                            backgroundImage.removeEventListener("load", _onLoad)
                             callback(url);
                         })
                     }
