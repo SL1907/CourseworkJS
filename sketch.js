@@ -1,13 +1,13 @@
 "use strict";
 
 const GAME_NAME = "CAR GAME";
+const assets = new Assets();
 
 let sceneManager;
 let gameSpeed = 1;
 let gameState;
 let isMobile;
 
-const Fonts = {};
 const Buttons = {};
 
 const ObstacleType = Object.freeze({
@@ -22,12 +22,11 @@ const GameState = Object.freeze({
 	GAME_OVER: 2
 });
 
-let backgroundImage;
 function preload() {
-	Fonts["Goldman"] = loadFont('./assets/fonts/Goldman.ttf');
-	Fonts["PressStart"] = loadFont('./assets/fonts/PressStart.ttf');
+	assets.registerFont("Goldman", loadFont("./assets/fonts/Goldman.ttf"));
+	assets.registerFont("PressStart", loadFont("./assets/fonts/PressStart.ttf"));
 
-	backgroundImage = loadImage("assets/images/car_game.png");
+	assets.registerImage("Background", loadImage("assets/images/car_game.png"));
 
 	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
@@ -60,7 +59,7 @@ function draw() {
 function initButtons() {
 	const messages = ["Play", "Leaderboards", "Options", "Play Again", "Back to Menu"];
 
-	textFont(Fonts.PressStart);
+	textFont(assets.getFont("PressStart"));
 	textSize(50);
 
 	let startPlay = new Clickable();
@@ -94,7 +93,7 @@ function initButtons() {
 
 function defaultBehaviour(button, text, x, y) {
 	button.locate(x, y);
-	button.textFont = Fonts.PressStart;
+	button.textFont = assets.getFont("PressStart");
 	button.textColor = "#FFFF00";
 	button.strokeWeight = 0;
 

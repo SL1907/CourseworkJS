@@ -5,7 +5,7 @@ class GameMenu {
 		this.enter = function () {
 			background(255);
 			tint(255, 127);
-			image(backgroundImage, 40, 0, width, height);
+			image(assets.getImage("Background"), 40, 0, width, height);
 			tint(255, 255);
 		};
 
@@ -15,7 +15,7 @@ class GameMenu {
 			rect(width - (width / 4), 0, width / 4, height);
 
 			fill(255, 100, 0);
-			textFont(Fonts.PressStart);
+			textFont(assets.getFont("PressStart"));
 			textSize(90);
 			text(GAME_NAME, (width / 2) - (textWidth(GAME_NAME) / 2), 200);
 
