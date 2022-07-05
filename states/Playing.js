@@ -16,11 +16,12 @@ class Playing {
 
 		this.enter = function () {
 			obstacles = [];
+
+			car.pos((width / 2), height - car.height - 20);
 		};
 
 		this.setup = function () {
 			car = new Car(0, 0);
-			car.pos((width / 2) - (car.width / 2), height - car.height - 20);
 		};
 
 		this.draw = function () {
