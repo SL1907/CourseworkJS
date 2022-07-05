@@ -2,8 +2,7 @@
 
 const GAME_NAME = "CAR GAME";
 
-let car;
-let obstacles;
+let sceneManager;
 let gameSpeed = 1;
 let gameState;
 let isMobile;
@@ -18,7 +17,7 @@ const ObstacleType = Object.freeze({
 });
 
 const GameState = Object.freeze({
-	START_SCREEN: 0,
+	GAME_MENU: 0,
 	PLAYING: 1,
 	GAME_OVER: 2
 });
@@ -36,73 +35,26 @@ function preload() {
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 
+	sceneManager = new SceneManager();
+
+	sceneManager.addScene(GameMenu);
+	sceneManager.addScene(Playing);
+	sceneManager.addScene(GameOver);
+	sceneManager.addScene(MobileDevice);
+
+	sceneManager.showNextScene();
+
 	if (isMobile) {
-		fill(255, 0, 0);
-		textSize(round(width * 0.04));
-		let error = "This game is not supported by your device.";
-		text(error, width / 2 - textWidth(error) / 2, height / 2);
+		sceneManager.showScene(MobileDevice);
 		return;
 	}
 	
 	frameRate(60);
-
-	gameState = GameState.START_SCREEN;
-	tint(255, 127);
-	image(backgroundImage, 40, 0, width, height);
-
-	drawGameWindow();
-	
 	initButtons();
-	
-	obstacles = [];
-
-	car = new Car(0, 0);
-	car.pos((width / 2) - (car.width / 2), height - car.height - 20);
 }
 
 function draw() {
-	if (isMobile) {
-		return;
-	}
-
-	drawGameWindow(gameState);
-
-	let buttons = Buttons[gameState] || [];
-	for (let button of buttons) {
-		button.draw();
-	}
-
-	switch (gameState) {
-		case GameState.START_SCREEN: {
-			fill(255, 100, 0);
-			textFont(Fonts.PressStart);
-			textSize(90);
-			text(GAME_NAME, (width / 2) - (textWidth(GAME_NAME) / 2), 200);
-			
-			fill(0, 0, 0);
-			textSize(25);
-			let copyright = "© 2022 SL1907";
-			text(copyright, (width / 2) - (textWidth(copyright) / 2), height - 45);
-
-			break;
-		}
-		case GameState.PLAYING: {
-			createObstacles();
-			moveObstacles();
-			car.draw();
-			break;
-		}
-		case GameState.GAME_OVER: {			
-			fill(225, 0, 0);
-			textFont(Fonts.PressStart);
-			textSize(90);
-			text("GAME OVER", (width / 2) - (textWidth("GAME OVER") / 2), 200);
-
-			break;
-		}
-	}
-
-	keyboardInput();	
+	sceneManager.draw();	
 }
 
 function initButtons() {
@@ -113,12 +65,12 @@ function initButtons() {
 
 	let startPlay = new Clickable();
 	startPlay.onPress = function () {
-		restartGame();
+		sceneManager.showScene(Playing);
 	}
 	let startLeaderboard = new Clickable();
 	let startOptions = new Clickable();
 
-	Buttons[GameState.START_SCREEN] = [
+	Buttons[GameState.GAME_MENU] = [
 		defaultBehaviour(startPlay, messages[0], (width / 2) - textWidth(messages[0]) / 2, (height / 2) - 100),
 		defaultBehaviour(startLeaderboard, messages[1], (width / 2) - textWidth(messages[1]) / 2, (height / 2)),
 		defaultBehaviour(startOptions, messages[2], (width / 2) - textWidth(messages[2]) / 2, (height / 2) + 100)
@@ -126,34 +78,18 @@ function initButtons() {
 
 	let gameOverPlay = new Clickable();
 	gameOverPlay.onPress = function () {
-		restartGame();
+		sceneManager.showScene(Playing);
 	}
 
 	let gameOverMenu = new Clickable();
 	gameOverMenu.onPress = function () {
-		gameState = GameState.START_SCREEN;
+		sceneManager.showScene(GameMenu);
 	}
 
 	Buttons[GameState.GAME_OVER] = [
 		defaultBehaviour(gameOverPlay, messages[3], (width / 2) - textWidth(messages[3]) / 2, (height / 2) - 50),
 		defaultBehaviour(gameOverMenu, messages[4], (width / 2) - textWidth(messages[4]) / 2, (height / 2) + 75)
 	];
-}
-
-function drawGameWindow() {
-	if (gameState === GameState.START_SCREEN) {
-		// tint(255, 127);
-		background(220);
-
-		fill(127, 127, 127);
-		rect(0, 0, width / 4, height);
-		rect(width - (width / 4), 0, width / 4, height);
-	} else {
-		background(220);
-		fill(127, 127, 127);
-		rect(0, 0, width / 4, height);
-		rect(width - (width / 4), 0, width / 4, height);
-	}
 }
 
 function defaultBehaviour(button, text, x, y) {
@@ -178,119 +114,10 @@ function defaultBehaviour(button, text, x, y) {
 	return button;
 }
 
-function restartGame() {
-	obstacles = [];
-	gameState = GameState.PLAYING;
-}
-
-function moveObstacles() {
-	for (let i = 0; i < obstacles.length; i++) {
-		const obstacle = obstacles[i];
-		obstacle.move(0, 3 * gameSpeed);
-		obstacle.draw();
-		if (collideRectRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, car.x, car.y, car.width, car.height)) {
-			gameState = GameState.GAME_OVER;
-		}
-	}
-}
-
-function createObstacles() {
-	if (frameCount % 30 === 0 && obstacles.length < (20 * (1 + gameSpeed * 0.5))) {
-		if (random(0, 1) < 0.2) {
-			let newObstacle = new Obstacle(random(width / 4, width - (width / 4) - 20), -20, 20, 30, ObstacleType.CAR);
-			obstacles.push(newObstacle);
-		}
-	}
-}
-
-const keybinds = {
-	"37": function () {
-		car.move(-5);
-	},
-	"39": function() {
-		car.move(5);
-	}
-}
-
-function keyboardInput() {
+function keyboardInput(keybinds) {
 	for (const [key, keyHandler] of Object.entries(keybinds)) {
 		if (keyIsDown(Number(key))) {
 			keyHandler();
-		}
-	}
-}
-
-
-class GameObject {
-
-	constructor(x, y, width, height, assetFile) {
-		this.assetFile = assetFile;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-	}
-
-}
-
-class Car extends GameObject {
-
-	width = 40;
-	height = 60;
-	angle = 0;
-	color = [];
-
-	constructor(x, y) {
-		super(x, y, width, height, null);
-		this.color[0] = random(255);
-		this.color[1] = random(255);
-		this.color[2] = random(255);
-	}
-
-	draw() {
-		fill(this.color[0], this.color[1], this.color[2]);
-		rect(this.x, this.y, this.width, this.height);
-		while (this.angle !== 0) {
-			this.angle += this.angle > 0 ? -1 : 1;
-		}
-		rotate(this.angle);
-	}
-
-	pos(x, y) {
-		this.x = Math.max((windowWidth / 4), x - this.width);
-		this.y = y;
-	}
-
-	move(xOff = 0, yOff = 0) {
-		// if ()
-		this.x += (this.x + xOff >= (windowWidth / 4) + xOff ? xOff : 0);
-		this.angle = xOff < 0 ? -30 : 30;
-		this.y += (this.y + yOff > windowHeight ? yOff : 0);
-	}
-}
-
-class Obstacle extends GameObject {
-
-	color = [];
-
-	constructor(x, y, width, height, type) {
-		super(x, y, width, height, null); // Assets.obstacles[type]
-		this.type = type;
-		this.color[0] = random(255);
-		this.color[1] = random(255);
-		this.color[2] = random(255);
-	}
-
-	draw() {
-		fill(this.color[0], this.color[1], this.color[2]);
-		rect(this.x, this.y, this.width, this.height);
-	}
-
-	move(xOff = 0, yOff = 0) {
-		this.x += (this.x + xOff > (windowWidth / 4) + xOff ? xOff : 0);
-		this.y += yOff;
-		if (this.y > height + this.height) {
-			obstacles.splice(obstacles.indexOf(this), 1);
 		}
 	}
 }
