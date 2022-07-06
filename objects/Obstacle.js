@@ -4,15 +4,20 @@ class Obstacle extends GameObject {
 
 	color = [];
 
-	constructor(x, y, width, height, type) {
-		super(x, y, width, height, null); // Assets.obstacles[type]
+	constructor(x, y, width, height, type, assetFile) {
+		super(x, y, width, height, assetFile); // Assets.obstacles[type]
 		this.type = type;
+		this.assetFile = assetFile;
 		this.color[0] = random(255);
 		this.color[1] = random(255);
 		this.color[2] = random(255);
 	}
 
 	draw() {
+		if (this.image !== null) {
+			image(this.assetFile, this.x, this.y, this.width, this.height);
+			return;
+		}
 		fill(this.color[0], this.color[1], this.color[2]);
 		rect(this.x, this.y, this.width, this.height);
 	}

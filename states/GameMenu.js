@@ -5,7 +5,7 @@ class GameMenu {
 		this.enter = function () {
 			background(255);
 			tint(255, 127);
-			image(assets.getImage("Background"), 40, 0, width, height);
+			image(assets.getImage("background"), 40, 0, width, height);
 			tint(255, 255);
 		};
 

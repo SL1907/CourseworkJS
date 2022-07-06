@@ -26,7 +26,26 @@ function preload() {
 	assets.registerFont("Goldman", loadFont("./assets/fonts/Goldman.ttf"));
 	assets.registerFont("PressStart", loadFont("./assets/fonts/PressStart.ttf"));
 
-	assets.registerImage("Background", loadImage("assets/images/car_game.png"));
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/assets/images");
+	xhr.responseType = 'document';
+	xhr.onload = () => {
+		if (xhr.status === 200) {
+			var elements = xhr.response.getElementsByTagName("a");
+			for (let x of elements) {
+				if (x.href.match(/\.(jpe?g|png|gif)$/)) {
+					assets.registerImage(x.title.replace(".png", ""), loadImage(x.href));
+				}
+			};
+		} else {
+			console.log('Request failed. Returned status of ' + xhr.status);
+		}
+	}
+	xhr.send();
+	
+	console.log(assets.Images);
+	
+	assets.registerImage("bg", loadImage("./assets/images/background.png"));
 
 	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
@@ -47,13 +66,13 @@ function setup() {
 		sceneManager.showScene(MobileDevice);
 		return;
 	}
-	
+
 	frameRate(60);
 	initButtons();
 }
 
 function draw() {
-	sceneManager.draw();	
+	sceneManager.draw();
 }
 
 function initButtons() {
