@@ -3,7 +3,6 @@
 class Assets {
 
     constructor () {
-        
     }
 
     Fonts = {};
